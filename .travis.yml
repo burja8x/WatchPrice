@@ -1,0 +1,16 @@
+﻿language: csharp
+sudo: required
+mono: none
+dotnet: 3.1
+
+install:
+  - export DOTNET_CLI_TELEMETRY_OPTOUT=1
+before_script:
+  - chmod a+x ./build.sh
+  - chmod a+x ./deploy.sh
+script:
+  - ./build.sh
+deploy:
+  - provider: script
+    script: ./deploy.sh $TRAVIS_JOB_NUMBER $DOCKER_USERNAME $DOCKER_PASSWORD
+    skip_cleanup: true

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: report-v1
+  template:
+    metadata:
+      labels:
+        app: report-v1
+    spec:
+      containers:
+        - image: burja8x/report:3.1
+          name: report-v1
+          env:
+            - name: APP_CONFIG_CONN_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: config-conn-string
+                  key: app-config-conn-string
+            - name: MY_POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: health/ready
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 3
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-v1
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: report-v1
