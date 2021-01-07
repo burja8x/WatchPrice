@@ -50,24 +50,35 @@ namespace Ros4
 
         private void OnTimedEventUpdateDB(object sender, ElapsedEventArgs e)
         {
-            _timerUpdateDB.Interval = rand.Next(6000, 9000);
+            _timerUpdateDB.Interval = rand.Next(8000, 9000);
             //watchedTradingPairs.RemoveAll(x => x.last_price == null);
             List<PriceAlartRow> newList = new List<PriceAlartRow>(watchedTradingPairs);
             try
             {
                 for (int j = 0; j < Kline.p.Count; j++)
                 {
-                    bool b = false;
                     for (int i = 0; i < newList.Count; i++)
                     {
-                        if (b) {
-                            newList.RemoveAt(i);
-                            continue;
-                        }
                         if (Kline.p.ElementAt(j).Key == newList.ElementAt(i).trading_pair)
                         {
+                            if (newList.ElementAt(i).last_price != null && (decimal)newList.ElementAt(i).last_price != 0 && 
+                                IsBetween(newList.ElementAt(i).price, Math.Min((decimal)newList.ElementAt(i).last_price, Kline.p.ElementAt(j).Value), Math.Max((decimal)newList.ElementAt(i).last_price, Kline.p.ElementAt(j).Value))) {
+                                Console.WriteLine($"price crosses alart price..... sending... alart price:{newList.ElementAt(i).price}, prev price:{(decimal)newList.ElementAt(i).last_price}, now price:{Kline.p.ElementAt(j).Value}");
+                                Data.DeleteFromPriceAlartById(newList.ElementAt(i).id);
+                                newList.RemoveAt(i);
+                                // SEND
+                                try
+                                {
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex);
+                                }
+
+                                break;
+                            }
                             newList.ElementAt(i).last_price = Kline.p.ElementAt(j).Value;
-                            b = true;
                         }
                     }
                 }
@@ -80,7 +91,7 @@ namespace Ros4
         }
         private void OnTimedEventSelectDB(object sender, ElapsedEventArgs e)
         {
-            _timerUpdateDB.Interval = rand.Next(10000, 14000);
+            _timerSelectDB.Interval = rand.Next(12000, 14000);
 
             List<PriceAlartRow> priceAlartTable = Data.GetPriceAlartTable();
             DateTime? sysDateTime = Data.GetSysDateTime();

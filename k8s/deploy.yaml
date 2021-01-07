@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: report-v1
+  name: watchprice-v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: report-v1
+      app: watchprice-v1
   template:
     metadata:
       labels:
-        app: report-v1
+        app: watchprice-v1
     spec:
       containers:
-        - image: burja8x/report:3.1
-          name: report-v1
+        - image: burja8x/watchprice:latest
+          name: watchprice-v1
           env:
             - name: APP_CONFIG_CONN_STRING
               valueFrom:
@@ -46,10 +46,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: report-v1
+  name: watchprice-v1
 spec:
   type: ClusterIP
   ports:
     - port: 80
   selector:
-    app: report-v1
+    app: watchprice-v1

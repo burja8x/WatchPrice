@@ -69,7 +69,7 @@ namespace Ros4
         public static void UpdateLastPrice(List<PriceAlartRow> updatedRows, bool onlyMark = false) {
 
             if (updatedRows == null || updatedRows.Count == 0) {
-                Console.WriteLine("No rows to update.");
+                //Console.WriteLine("No rows to update.");
                 return;
             }
 
@@ -112,7 +112,7 @@ namespace Ros4
 
             if (deleteRows == null || deleteRows.Count == 0)
             {
-                Console.WriteLine("No rows to update.");
+                //Console.WriteLine("No rows to update.");
                 return;
             }
 
@@ -150,6 +150,7 @@ namespace Ros4
 
         public static bool DeleteFromPriceAlartById(int id)
         {
+            Console.WriteLine($"Delete By id:{id}");
             SqlConnection conn = new SqlConnection(sqlConnStr);
             conn.Open();
 

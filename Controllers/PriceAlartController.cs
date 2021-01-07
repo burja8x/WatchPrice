@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Ros4.Controllers
@@ -15,6 +16,17 @@ namespace Ros4.Controllers
         [HttpGet]
         public IEnumerable<PriceAlartRow> Get() {
             var n = Data.GetPriceAlartTable();
+            try
+            {
+                WebClient web = new WebClient();
+
+                string result = web.DownloadString("http://localhost:80/watchprice/api/v1/pricemonitor");
+                Console.Write($"Respone WWWW api:{result}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             return n.ToArray();
         }
 
