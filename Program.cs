@@ -30,8 +30,8 @@ namespace Ros4
                             options.Connect(connection)
                                    .ConfigureRefresh(refresh =>
                                    {
-                                       refresh.Register("TestApp:Settings:Message", refreshAll: true)
-                                      .SetCacheExpiration(new TimeSpan(0, 5, 0));
+                                       refresh.Register("WatchPrice:Settings:xurl", refreshAll: true)
+                                      .SetCacheExpiration(new TimeSpan(0, 0, 30));
                                    });
                         });
                     }).UseStartup<Startup>();

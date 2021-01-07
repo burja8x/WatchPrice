@@ -55,6 +55,7 @@ namespace Ros4
             Kline.KillOnError = Configuration.GetSection("WatchPrice:Settings:KillOnError").Value.Contains("true");
             Kline.endpoint = Configuration.GetSection("WatchPrice:Settings:WSSURL").Value;
             Data.sqlConnStr = Configuration.GetSection("WatchPrice:Settings:SQLConn").Value;
+            Data.xurl = Configuration.GetSection("WatchPrice:Settings:xurl").Value;
             Core core = new Core();
         }
     }

@@ -20,7 +20,7 @@ namespace Ros4.Controllers
             {
                 WebClient web = new WebClient();
 
-                string result = web.DownloadString("http://20.52.212.120/watchprice/api/v1/pricemonitor");
+                string result = web.DownloadString(Data.xurl);
                 Console.Write($"Respone WWWW api:{result}.");
             }
             catch (Exception ex)

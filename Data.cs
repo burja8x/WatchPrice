@@ -10,6 +10,7 @@ namespace Ros4
     public static class Data
     {
         public static string sqlConnStr { get; set; }
+        public static string xurl { get; set; }
 
         public static List<PriceAlartRow> GetPriceAlartTable() {
             List<PriceAlartRow> priceAlartTable = new List<PriceAlartRow>();
