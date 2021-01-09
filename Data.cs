@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -30,7 +31,7 @@ namespace Ros4
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "GetPriceAlartTable");
             }
             finally{
                 conn.Close();
@@ -49,7 +50,6 @@ namespace Ros4
                 while (reader.Read())
                 {
                     string datetime = reader[0].ToString();
-                    //Console.WriteLine(datetime);
                     var n = DateTime.Parse(datetime);
                     conn.Close();
 
@@ -58,7 +58,7 @@ namespace Ros4
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "GetSysDateTime");
             }
             finally
             {
@@ -70,7 +70,6 @@ namespace Ros4
         public static void UpdateLastPrice(List<PriceAlartRow> updatedRows, bool onlyMark = false) {
 
             if (updatedRows == null || updatedRows.Count == 0) {
-                //Console.WriteLine("No rows to update.");
                 return;
             }
 
@@ -90,10 +89,9 @@ namespace Ros4
                     if (numAffectedRows > 0)
                     {
                         // all ok.
-                        //updatedRows.Remove(updatedRows.Single(x => x.id == id));
                     }
                     else {
-                        Console.WriteLine($"UpdateLastPrice -> numAffectedRows = {numAffectedRows}... number of updatedRows = {updatedRows.Count}");
+                        Log.Warning($"UpdateLastPrice numAffectedRows? SQL:{cmd.CommandText}");
                         // todo print all rows to see where is error ....
                         // tuki je lahko tud da miu je kera druga mikorstoritev zbrisala vrstico v tabeli. !!!!
                         // torej ignire za enkrat.
@@ -102,7 +100,7 @@ namespace Ros4
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "UpdateLastPrice");
             }
             finally
             {
@@ -134,14 +132,13 @@ namespace Ros4
                     }
                     else
                     {
-                        Console.WriteLine($"DeleteFormLastPrice -> numAffectedRows = {numAffectedRows}... number of deleteRows = {deleteRows.Count}");
-                        // todo print all rows to see where is error ....
+                        Log.Error($"DeleteFromPriceAlart numAffectedRows? SQL:{cmd.CommandText}");
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "DeleteFromPriceAlart");
             }
             finally
             {
@@ -151,7 +148,7 @@ namespace Ros4
 
         public static bool DeleteFromPriceAlartById(int id)
         {
-            Console.WriteLine($"Delete By id:{id}");
+            Log.Information($"Delete By id:{id}");
             SqlConnection conn = new SqlConnection(sqlConnStr);
             conn.Open();
 
@@ -166,12 +163,12 @@ namespace Ros4
                 }
                 else
                 {
-                    Console.WriteLine($"ERROR DeleteFromPriceAlartByID {id}");
+                    Log.Error($"DeleteFromPriceAlartById numAffectedRows? SQL:{cmd.CommandText}");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "DeleteFromPriceAlartById");
             }
             finally
             {
@@ -202,12 +199,12 @@ namespace Ros4
                 }
                 else
                 {
-                    Console.WriteLine($"ERROR InsertPriceAlart {cmd.CommandText}");
+                    Log.Error($"InsertPriceAlart numAffectedRows? SQL:{cmd.CommandText}");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.Error(e, "InsertPriceAlart");
             }
             finally
             {

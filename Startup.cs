@@ -6,8 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -56,6 +58,20 @@ namespace Ros4
             Kline.endpoint = Configuration.GetSection("WatchPrice:Settings:WSSURL").Value;
             Data.sqlConnStr = Configuration.GetSection("WatchPrice:Settings:SQLConn").Value;
             Data.xurl = Configuration.GetSection("WatchPrice:Settings:xurl").Value;
+
+            string text = File.ReadAllText("logConfig.json");
+            text = text.Replace("CHANGE_ME_TCPSink_URI", Configuration.GetSection("Report:Settings:SerilogURI").Value);
+            File.WriteAllText("logConfig1.json", text);
+            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("logConfig1.json")
+                    .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+
+            //app.UseSerilogRequestLogging();
+
             Core core = new Core();
         }
     }

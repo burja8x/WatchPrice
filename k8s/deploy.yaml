@@ -13,7 +13,7 @@ spec:
         app: watchprice-v1
     spec:
       containers:
-        - image: burja8x/watchprice:4.1
+        - image: burja8x/watchprice:5.1
           name: watchprice-v1
           env:
             - name: APP_CONFIG_CONN_STRING

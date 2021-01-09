@@ -1,0 +1,22 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Network" ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "TCPSink",
+        "Args": { "uri": "CHANGE_ME_TCPSink_URI" }
+      },
+      "Console"
+    ],
+    "Enrich": [ "FromLogContext" ]
+  }
+}

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -63,17 +65,23 @@ namespace Ros4
                         {
                             if (newList.ElementAt(i).last_price != null && (decimal)newList.ElementAt(i).last_price != 0 && 
                                 IsBetween(newList.ElementAt(i).price, Math.Min((decimal)newList.ElementAt(i).last_price, Kline.p.ElementAt(j).Value), Math.Max((decimal)newList.ElementAt(i).last_price, Kline.p.ElementAt(j).Value))) {
-                                Console.WriteLine($"price crosses alart price..... sending... alart price:{newList.ElementAt(i).price}, prev price:{(decimal)newList.ElementAt(i).last_price}, now price:{Kline.p.ElementAt(j).Value}");
+                                Log.Information($"price crosses alart price..... sending... alart price:{newList.ElementAt(i).price}, prev price:{(decimal)newList.ElementAt(i).last_price}, now price:{Kline.p.ElementAt(j).Value}");
                                 Data.DeleteFromPriceAlartById(newList.ElementAt(i).id);
-                                newList.RemoveAt(i);
+
                                 // SEND
+                                List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
+                                list.Add(new KeyValuePair<string, string>("content", $"Price ALART: {newList.ElementAt(i).trading_pair.ToUpper()} price crosses: {newList.ElementAt(i).price}"));
+                                list.Add(new KeyValuePair<string, string>("sms", newList.ElementAt(i).mobi));
+                                list.Add(new KeyValuePair<string, string>("mail", newList.ElementAt(i).email));
+                                newList.RemoveAt(i);
                                 try
                                 {
-
+                                    Log.Information($"Sending POST request to REPORT micro... DATA:{string.Join(Environment.NewLine, list.Select(kvp => kvp.Key + ": " + kvp.Value.ToString()))}  URL: {Data.xurl}");
+                                    string result = PostWithAuthorization(Data.xurl, list.ToArray()).Result;
                                 }
                                 catch (Exception ex)
                                 {
-                                    Console.WriteLine(ex);
+                                    Log.Error(ex, "OnTimedEventUpdateDB ... sending SMS");
                                 }
 
                                 break;
@@ -86,9 +94,30 @@ namespace Ros4
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.Error(ex, "OnTimedEventUpdateDB");
             }
         }
+
+        public async Task<string> PostWithAuthorization(string link, KeyValuePair<string, string>[] contents)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var postData = new FormUrlEncodedContent(contents);
+
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    var result = await client.PostAsync(link, postData);
+                    return await result.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "PostWithAuthorization");
+            }
+            return "OK";
+        }
+
         private void OnTimedEventSelectDB(object sender, ElapsedEventArgs e)
         {
             _timerSelectDB.Interval = rand.Next(12000, 14000);
@@ -97,7 +126,7 @@ namespace Ros4
             DateTime? sysDateTime = Data.GetSysDateTime();
 
             if ( ! sysDateTime.HasValue) {
-                Console.WriteLine("No SQL system DATETIME !!!");
+                Log.Error("No SQL system DATETIME !!!");
                 return;
             }
 

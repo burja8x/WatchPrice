@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Ros4
 
         public Kline()
         {
-            Console.WriteLine("Connecting to WebSocket");
+            Log.Information("Connecting to WebSocket");
             InitSocket(endpoint);
         }
 
@@ -50,14 +51,14 @@ namespace Ros4
 
         public void Subscribe(string subscribeOnTradingPair) {
             string data = $"{{\"method\": \"SUBSCRIBE\",\"params\": [{subscribeOnTradingPair}],\"id\": {_idToSend}}}";
-            Console.WriteLine($"Sending: {data}");
+            Log.Information($"Sending: {data}");
             _idToSend++;
             _socket.Send(data);
         }
 
         public void Unsubscribe(string unsubscribeOnTradingPair) {
             string data = $"{{\"method\": \"UNSUBSCRIBE\",\"params\": [{unsubscribeOnTradingPair}],\"id\": {_idToSend}}}";
-            Console.WriteLine($"Sending: {data}");
+            Log.Information($"Sending: {data}");
             _idToSend++;
             _socket.Send(data);
         }
@@ -94,7 +95,7 @@ namespace Ros4
                 }
                 else if (e.Message.Contains("\"error\""))
                 {
-                    Console.WriteLine($"server send me error: {e.Message}");
+                    Log.Error($"server send me error: {e.Message}");
                 } 
                 else if (e.Message.Contains("\"result\":null")) { // subscribe or unsubscribe sucsessful.
                 
@@ -102,32 +103,32 @@ namespace Ros4
                     if (reg.Success)
                     {
                         string id = reg.Groups[1].Value;
-                        Console.WriteLine($"Sucsessful sub/unsub. to id: {id}");
+                        Log.Information($"Sucsessful sub/unsub. to id: {id}");
                         //var itemToRemove = waitForId.Single(r => r == Int32.Parse(id));
                     }
                     else {
-                        Console.WriteLine("Sucsessful sub/unsub.");
+                        Log.Information("Sucsessful sub/unsub.");
                     }
                 }
                 else {
-                    Console.WriteLine($"Unknown message: {e.Message}");
+                    Log.Information($"Unknown message: {e.Message}");
                 }
 
             }
-            catch (Exception ex) { Console.WriteLine($"ERROR: {ex.StackTrace}"); Console.WriteLine($"Data with error: {e.Message}"); }
+            catch (Exception ex) { Log.Error(ex, $"SocketMessageReceived Message:{e.Message}"); }
         }
 
         public void CloseWebSocketInstance() {
-            Console.WriteLine("close");
+            Log.Information("close");
             _socket.Close();
-            Console.WriteLine("Closed");
+            Log.Information("Closed");
         }
 
         
 
         private void SocketClosed(object sender, EventArgs e)
         {
-            Console.WriteLine("SOCKET CLOSED");
+            Log.Information("SOCKET CLOSED");
 
             //Thread.Sleep(4000);
             //Console.WriteLine("Reconnecting...");
@@ -136,38 +137,17 @@ namespace Ros4
 
         private void SocketError(object sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
-            Console.WriteLine("SOCKET ERROR: ");
-            Console.WriteLine("e.Exception.Message: " + e.Exception.Message);
+            Log.Error(e.Exception, "SocketError event");
 
             if (KillOnError) {
-                Console.WriteLine("Kill on Error Enabled ...-> Kill this pod.");
+                Log.Information("Kill on Error Enabled ...-> Kill this pod.");
                 Microsoft.Extensions.Diagnostics.HealthChecks.WssHealthCheck.healthy = false;
             }
         }
 
         private void SocketOpened(object sender, EventArgs e)
         {
-            Console.WriteLine("SOCKET Connected");
-        }
-
-        private void SetTimer()
-        {
-            Console.WriteLine("Set Timer");
-            _timer = new System.Timers.Timer();
-            _timer.Interval = 60000;
-            _timer.Elapsed += OnTimedEvent;
-            _timer.Start();
-        }
-
-        public void SendPong()
-        {
-            this._socket.Send("pong");
-        }
-
-        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
-        {
-            Console.WriteLine("Sending pong");
-            SendPong();
+            Log.Information("SOCKET Connected");
         }
     }
 }
