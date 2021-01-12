@@ -27,7 +27,7 @@ namespace Ros4.Controllers
             }
             else {
                 if (hostIP.Split('.').Length == 4) { 
-                    if (Core.hostIP != hostIP { 
+                    if (Core.hostIP != hostIP) { 
                         Log.Information("Setting xurl IP!");
                         Core.hostIP = hostIP;
                     }
