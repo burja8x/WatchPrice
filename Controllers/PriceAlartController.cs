@@ -18,7 +18,23 @@ namespace Ros4.Controllers
         // GET: PriceAlartController
         [HttpGet]
         public IEnumerable<PriceAlartRow> Get() {
-            Log.Information($"Host info: {Request.Host.Value}");
+            string hostIP = Request.Host.Value;
+
+            Log.Information($"Host info: {hostIP}");
+            if (hostIP.StartsWith("10.") || hostIP.StartsWith("192.168.") || hostIP.Contains("localhost"))
+            {
+
+            }
+            else {
+                if (hostIP.Split('.').Length == 4) { 
+                    if (Core.hostIP != hostIP { 
+                        Log.Information("Setting xurl IP!");
+                        Core.hostIP = hostIP;
+                    }
+                }
+                
+            }
+
             var n = Data.GetPriceAlartTable();
             return n.ToArray();
         }

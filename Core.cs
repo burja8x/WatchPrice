@@ -18,7 +18,7 @@ namespace Ros4
         private List<PriceAlartRow> watchedTradingPairs = new List<PriceAlartRow>();
         private const int limit = 10;
         public static string POD_UUID;
-
+        public static string hostIP = "";
         private List<string> removeFromP = new List<string>();
 
         public Core() {
@@ -76,7 +76,10 @@ namespace Ros4
                                 newList.RemoveAt(i);
                                 try
                                 {
-                                    Log.Information($"Sending POST request to REPORT micro... DATA:{string.Join(Environment.NewLine, list.Select(kvp => kvp.Key + ": " + kvp.Value.ToString()))}  URL: {Data.xurl}");
+                                    Log.Information($"Sending POST request to REPORT micro... DATA:{string.Join("   ", list.Select(kvp => kvp.Key + ":" + kvp.Value.ToString()))}  URL: {Data.xurl}");
+
+                                    string url = hostIP.Length == 0 ? Data.xurl : "http://" + hostIP + "/report/api/v1/report";
+
                                     string result = PostWithAuthorization(Data.xurl, list.ToArray()).Result;
                                 }
                                 catch (Exception ex)
